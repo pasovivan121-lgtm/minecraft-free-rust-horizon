@@ -13209,7 +13209,9 @@ impl Game<'_> {
         self.save_warden_tracker();
         self.sync_level();
         self.store_owner();
-        if self.options.dedicated.is_some() {
+        // Integrated servers also have dedicated options, but their owner is
+        // stored in level.dat and must be saved with the rest of the world.
+        if self.options.execution_role == execution_role::ExecutionRole::DedicatedServer {
             self.level.write_without_player(&self.world_root)?;
         } else {
             self.level.write(&self.world_root)?;
