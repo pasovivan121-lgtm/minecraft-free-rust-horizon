@@ -1,160 +1,153 @@
 <p align="center">
-  <img src="docs/media/banner.webp" alt="The Horizon website: the game you know, rebuilt in Rust" width="100%">
+  <img src="docs/media/banner.webp" alt="Horizon: Minecraft rebuilt in Rust" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/horizon-rust/horizon/actions/workflows/ci.yml"><img src="https://github.com/horizon-rust/horizon/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <img src="https://img.shields.io/badge/Minecraft-Java%2026.3-5D9C3F" alt="Minecraft Java 26.3">
+  <img src="https://img.shields.io/badge/launcher-offline--first-6A5ACD" alt="Offline-first launcher">
+  <img src="https://img.shields.io/badge/TLauncher-compatible-3B82F6" alt="TLauncher compatible">
   <img src="https://img.shields.io/badge/Rust-stable-B7410E?logo=rust&logoColor=white" alt="Rust">
-  <img src="https://img.shields.io/badge/vanilla%20parity-100%25-F0795A" alt="Vanilla parity 100%">
-  <a href="#project-status"><img src="https://img.shields.io/badge/player--visible%20gaps-833%20open-F0795A" alt="Player-visible gaps open"></a>
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-2A2470" alt="Linux, macOS and Windows">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3B2F7E" alt="MIT license"></a>
 </p>
 
-<p align="center">
-  <a href="https://playhorizon.dev"><b>Website</b></a> ·
-  <a href="#download"><b>Download</b></a> ·
-  <a href="https://playhorizon.dev/docs/"><b>Documentation</b></a> ·
-  <a href="https://github.com/horizon-rust/horizon/releases"><b>Release notes</b></a> ·
-  <a href="ROADMAP.md"><b>Roadmap</b></a> ·
-  <a href="#project-status"><b>Project status</b></a> ·
-  <a href="#contributing"><b>Contributing</b></a>
-</p>
+# Minecraft Free Rust Horizon
 
-# Horizon
+A customized build of [Horizon](https://github.com/horizon-rust/horizon), the open-source Rust rewrite of Minecraft: Java Edition. This fork is configured for an **offline player profile**, can prepare game resources from a local **TLauncher or Minecraft Launcher** installation, and includes a fix that preserves the single-player owner's inventory and position when saving a world.
 
-Minecraft: Java Edition 26.3, rewritten in Rust. Same worlds, same rules, same terrain, checked against the Java game by more than 300 differential harnesses. Free, open source and unofficial.
+> [!IMPORTANT]
+> This is an unofficial community fork. It is not an official Minecraft product and is not approved by or associated with Mojang, Microsoft, TLauncher, or the upstream Horizon project.
+>
+> The repository contains no Minecraft code, assets, credentials, or prepared game data. Use your own legally obtained Minecraft files and follow the Minecraft EULA and the rules that apply in your country.
 
-> Not an official Minecraft product, nor approved by or associated with Mojang or Microsoft. Horizon contains no Minecraft code, assets or data: you need your own copy of Java Edition 26.3.
+## How this fork differs from upstream
 
-## Download
+### Offline-first launcher
 
-Get **the Horizon launcher** from [playhorizon.dev](https://playhorizon.dev) or [the launcher releases](https://github.com/horizon-rust/horizon/releases?q=launcher-v&expanded=true) (Linux x86-64, macOS on Apple Silicon, Windows x64). It installs and updates the game, prepares its files from your copy of Minecraft, and updates itself.
+- Play uses a local offline player name and does not require Microsoft sign-in.
+- Microsoft sign-in and ownership prompts are removed from the customized launcher interface.
+- New Horizon servers accept offline player profiles.
+- Existing Horizon servers are switched to offline mode when opened by this launcher.
+- Online-mode servers that require Microsoft authentication will not accept an offline profile.
 
-**You need** a Microsoft account that owns Java Edition ([why](docs/microsoft-account.md)) and a GPU with Vulkan or OpenGL 3.3 (Linux), Vulkan or DirectX 12 (Windows), or an Apple Silicon Mac. An existing Minecraft install (official launcher, Prism, MultiMC...) is reused; without one, Play downloads 26.3 from Mojang for your account. Step by step: [Install and first launch](https://playhorizon.dev/docs/install).
+### TLauncher-compatible preparation
 
-<table>
-  <tr>
-    <td width="50%"><img src="docs/media/launcher-play.webp" alt="The launcher's Home page: the selected instance ready to play, the version picker, Join a friend and the instance's tabs"></td>
-    <td width="50%"><img src="docs/media/launcher-settings.webp" alt="The launcher's Settings page: Microsoft account, offline name, updates, appearance and accent colour"></td>
-  </tr>
-</table>
+- The launcher checks the standard Minecraft/TLauncher game directory. On Linux, this is normally `~/.minecraft`.
+- A different directory can be selected under **Settings → Minecraft folder → Choose…**.
+- TLauncher profiles appear in `horizon-launcher instance others` and can be copied into a Horizon Java instance with `horizon-launcher instance copy-from`.
+- Install and launch the matching Minecraft version in TLauncher first so its local files are available.
+- Horizon imports local files; it does not launch TLauncher or connect to TLauncher's account service.
 
-## What works today
+### Single-player save fix
 
-- **The game:** vanilla world generation, mobs, villagers, raids, redstone, every command, the HUD and the recipe book, on vanilla saves. Worlds from 1.8 to 26.2 are upgraded. [Status](#project-status).
-- **Extras:** new menus, graphics presets, distant terrain up to 1024 chunks, controllers, zoom, minimap and more, off by default where they change the vanilla look. [Settings](https://playhorizon.dev/docs/settings).
-- **Packs:** resource packs, and data packs with functions, predicates, item modifiers and world generation.
-- **Multiplayer:** invite friends with a code, Open to LAN, join servers (online mode included). [Multiplayer](https://playhorizon.dev/docs/multiplayer).
-- **Mods:** content mods (blocks, items, data) and native Rust mods, built by the launcher with nothing to install. Java mod jars do not run. [Mods](https://playhorizon.dev/docs/mods).
+This fork fixes a regression where the integrated single-player server saved the world but omitted the owner's player record. The missing record caused the player to return with an old inventory and position after leaving and reopening a world.
 
-In the Rust client, with vanilla assets and no mods or shaders:
+The corrected save path now writes the owner's:
 
-<table>
-  <tr>
-    <td colspan="2"><img src="docs/media/sunset.webp" alt="Sunset over a savanna river valley and a plains village"></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="docs/media/survival.webp" alt="Survival at dusk: a zombie walks up, with the hotbar, health, hunger and experience"></td>
-    <td width="50%"><img src="docs/media/settings.webp" alt="Vanilla's Video Settings screen with Horizon's own buttons at the top: Horizon Graphics and Advanced Graphics"></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="docs/media/village.webp" alt="A plains village among savanna hills, with farms, villagers and an iron golem"></td>
-    <td width="50%"><img src="docs/media/nether.webp" alt="A crimson forest in the Nether with a zombified piglin"></td>
-  </tr>
-</table>
+- inventory and equipped items;
+- position and dimension;
+- health, status, and other player-specific state.
 
-## Host a server
+A true dedicated server still saves connected players through its dedicated-player path. The fix is committed as [`1abdd0f52`](https://github.com/pasovivan121-lgtm/minecraft-free-rust-horizon/commit/1abdd0f52).
 
-The launcher's **Servers** page creates, starts, backs up and updates a server, and invites friends over Tailscale. On a VPS, `horizon-server` installs with one command and needs no Java. [Host a server](https://playhorizon.dev/docs/hosting) ([reference](docs/hosting.md)).
+## Update behavior
 
-## Modpacks
+There are two separate kinds of updates:
 
-The launcher imports Modrinth and CurseForge packs and plays the mods Horizon can carry over: today, content mods made of data and assets, not Java code. [Modpacks](https://playhorizon.dev/docs/modpacks).
+| Update | Behavior in this fork |
+| --- | --- |
+| **Horizon game versions** | Checked and installed automatically by default. The launcher can install a future Horizon release that supports a newer Minecraft version. |
+| **The launcher executable** | Automatic self-replacement is disabled so an upstream launcher update cannot overwrite the offline/TLauncher customization. Rebuild or replace this customized launcher manually to update it. |
 
-## Agent control
+A Mojang release such as Minecraft 26.4 does **not** make the current Horizon client support 26.4 automatically. The upstream Horizon project must first publish a compatible Horizon build.
 
-AI agents and scripts can play Horizon. `horizon-ctl`, shipped with the game, reads its state as JSON and acts like a player; `horizon-ctl mcp` serves the same commands over MCP.
+Instances can also be pinned to a specific Horizon build. A new game version may be downloaded while a pinned instance continues using its selected build. Select the newer build for that instance when you are ready to migrate. Back up important worlds before opening them with a newer game version.
 
-```sh
-horizon-ctl launch --world Survival --seed 5 --wait   # finds the version the launcher installed
-horizon-ctl state                                       # position, health, food, target, screen...
-horizon-ctl find-block birch_log                        # the nearest logs
-horizon-ctl goto -0.5 65 -2.5 --near 2.5                # walks there along a path
-horizon-ctl break -1 65 -3                              # mines it; replies with the drops
-horizon-ctl open-inventory && horizon-ctl click-slot 0  # menus: slots, buttons by label, text fields
-```
+Automatic game-version installation can be changed under **Settings → Install new versions automatically**.
 
-Commands block until done and reply with the result; `horizon-ctl help` lists them all. [Agent control](docs/native-client.md#agent-control-horizon-ctl-and-mcp).
+## Using the customized launcher
+
+1. Install and launch the matching Minecraft version once in TLauncher or another supported launcher.
+2. Start the customized Horizon launcher.
+3. Open **Settings** and confirm the Minecraft folder. Choose the correct folder manually if it was not detected.
+4. Add or select an offline player name.
+5. Create or select a Horizon instance, prepare its resources, and press **Play**.
+6. To verify the save fix, enter a world, move and change an inventory slot, choose **Save and Quit to Title**, then reopen the world.
+
+The launcher keeps worlds and settings in its instance data folders. Do not commit or share those folders: they may contain personal worlds, local profiles, logs, and Minecraft-owned assets.
+
+## Repository layout
+
+This repository contains the full Horizon source history plus this fork's changes:
+
+- [`crates/horizon-client/src/game.rs`](crates/horizon-client/src/game.rs) — integrated-world player save fix.
+- [`offline-tlauncher.patch`](offline-tlauncher.patch) — patch used to produce the offline/TLauncher launcher customization.
+- [`offline-tlauncher-build.md`](offline-tlauncher-build.md) — build provenance and validation notes for the customized launcher.
+- [`launcher/`](launcher/) — upstream Horizon launcher workspace.
+- [`crates/`](crates/) — Horizon game and supporting Rust crates.
+- [`docs/`](docs/) — upstream technical and user documentation.
+
+The offline launcher modifications are retained as a patch so the customization remains auditable alongside the complete upstream history. The patch was produced for the source revision named in the build notes and may need conflict resolution when ported to a newer upstream revision.
 
 ## Build from source
 
-Needs Rust 1.90+, Python 3.10+, JDK 25, and on Linux `libasound2-dev libudev-dev`. `horizon-prepare` builds the game's resources from **your own copy** of Java Edition 26.3 (checked against `research-lock.json`) and never downloads it:
+Horizon requires Rust, Python, a JDK, platform development libraries, and prepared resources from your own matching Minecraft installation. Start with the upstream developer documentation in [`AGENTS.md`](AGENTS.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), and [`docs/native-client.md`](docs/native-client.md).
 
-1. **Client:** play 26.3 once in the official launcher. Horizon reads `~/.minecraft` (or `--minecraft-dir` / `HORIZON_MINECRAFT_DIR`).
-2. **Server jar:** the 26.3 server jar (`downloads.server.url` in `versions/26.3/26.3.json`), passed once with `--server-jar` or `HORIZON_SERVER_JAR`.
-
-```sh
-git clone https://github.com/horizon-rust/horizon.git
-cd horizon
-cargo run --release -p horizon-prepare -- --prepare --server-jar ~/Downloads/server.jar   # needs JDK 25
-cargo run --release -p horizon-prepare -- sounds   # optional: sounds from your launcher install
-cargo run --release -p horizon-client
-```
-
-Prepared files land in the gitignored `.local/`: never commit or share them. Options, controls and architecture: [the native client guide](docs/native-client.md); all developer docs: [docs/README.md](docs/README.md).
-
-## Roadmap
-
-What is in progress, what comes next and where to help: [ROADMAP.md](ROADMAP.md), or [playhorizon.dev/hub](https://playhorizon.dev/hub) with the work board and what shipped.
-
-## Contributing
-
-Issues and pull requests are welcome: read [CONTRIBUTING.md](CONTRIBUTING.md) (vanilla first, small pull requests). Questions: [Discord](https://discord.gg/HcTeMZxe5E). Before a pull request, run the self-check and paste its output:
+For the game client at the revision currently stored here:
 
 ```sh
-git config core.hooksPath .githooks
-python3 tools/pr_ready.py
+git clone git@github.com:pasovivan121-lgtm/minecraft-free-rust-horizon.git
+cd minecraft-free-rust-horizon
+
+# Prepare resources from your own Minecraft installation.
+cargo run --release -p horizon-prepare -- --prepare --server-jar /path/to/server.jar
+cargo run --release -p horizon-prepare -- sounds
+
+# Build the game containing the player-save fix.
+cargo build --profile fast -p horizon-client
 ```
 
-It runs rustfmt, clippy, the touched crates' tests, the Python tests, the public-tree check and the vanilla harnesses your change affects. Never commit game files, decompiled source or prepared resources.
+On Linux, the build normally needs `libasound2-dev` and `libudev-dev`. Prepared files are written under the gitignored `.local/` directory and must never be committed or redistributed.
 
-## Project status
+The offline/TLauncher launcher was originally built with Rust 1.99.1 and `HORIZON_LAUNCHER_VERSION=0.2.30`. See [`offline-tlauncher-build.md`](offline-tlauncher-build.md) before rebuilding it. Because [`offline-tlauncher.patch`](offline-tlauncher.patch) targets its recorded source revision, review the patch rather than applying it blindly to a newer Horizon checkout.
 
-**Player-visible gaps: 833 open** of the 833 the [port ledger](tools/port_ledger.py) found, reading every vanilla 26.3 method against Horizon's code: vanilla behaviour a player would notice that Horizon doesn't have yet. By area: Screens, HUD and client packets [197](https://github.com/horizon-rust/horizon/issues/3518); Entity and block rendering, models [129](https://github.com/horizon-rust/horizon/issues/3519); Animals [110](https://github.com/horizon-rust/horizon/issues/3512); Server and players on the server [106](https://github.com/horizon-rust/horizon/issues/3520); Blocks, redstone and fluids [86](https://github.com/horizon-rust/horizon/issues/3516); Entities, projectiles, vehicles and decorations [64](https://github.com/horizon-rust/horizon/issues/3514); Monsters and bosses [53](https://github.com/horizon-rust/horizon/issues/3513); Mob AI, villagers and raids [35](https://github.com/horizon-rust/horizon/issues/3521); World, world generation and saves [32](https://github.com/horizon-rust/horizon/issues/3517); Items, enchantments and inventories [21](https://github.com/horizon-rust/horizon/issues/3515). This number goes down as gaps close (`tools/parity_gaps.py`); the harness results below say that what is tested matches.
+## Validation recorded for this fork
 
-The table is the project's own audit: every subsystem matches vanilla in every harness that compares it. 100% means 100% of what the harnesses compare, not that nothing else differs.
+### Player-save correction
 
-### Java parity: 100%
+- Focused `cargo check -p horizon-client` passed when the corrected client was built.
+- An optimized `fast` client build passed.
+- The resulting Linux executable was checksum-verified and installed into the active Horizon instance.
+- The source public-tree check and Git object integrity check passed before upload.
 
-Scores: 0 (absent), 0.25 (started), 0.5 (playable, major features missing), 0.75 (mostly complete) or 1 (complete and verified by differential tests); the percentage is their average. Last audited 2026-10-13: all 281 harnesses pass on Linux and macOS. The [port ledger](tools/port_ledger.py) adds a method-by-method view of what is ported.
+### Offline/TLauncher launcher
 
-| Subsystem | Score | Main gaps |
-| --- | ---: | --- |
-| Window, input and game loop | 1 | None: game loop, options, camera, auto-jump, toggle sprint/sneak and frame limiter match |
-| Assets and resources | 1 | None: item models match over 196,290 stacks; the resource pack screen over 3,000 sessions |
-| Network protocol and multiplayer | 1 | None: joins vanilla servers; the dedicated server matches vanilla's files, login, configuration, play and command tree; LAN discovery over 462 cases (offline mode only) |
-| Chunk storage and palettes | 1 | None: client and saves share paletted containers, identical to vanilla over 266 scenarios |
-| Section meshing | 1 | None: 112 scenes and over a million quads identical to vanilla |
-| Rendering | 1 | None: entity models, block entity renderers (407 cases) and animations (296), HUD overlays (2,200 states), the recipe book (600), player list, subtitles and world border match |
-| Lighting | 1 | None: saved and relit light matches vanilla, slabs and stairs included |
-| World generation | 1 | None: 2,352 whole chunks over 225 structure sites, in all three dimensions, identical to vanilla |
-| Region files and saves | 1 | None: saves round-trip with vanilla; worlds from 1.8 to 26.2 upgrade as vanilla's DataFixers do |
-| Entities and physics | 1 | None: attributes, spawn rules, natural spawning (15,500 cases), raids and patrols (1,900), `finalizeSpawn` (24,000) and mob AI (92 scenarios) match |
-| Interaction and inventory | 1 | None: menu clicks over 8,000 sequences; recipe book placement (6,000), buttons (1,200), saved book (1,500), loom and crafter screens (1,600) |
-| Menus, HUD and chat | 1 | None: every command (758 over 39,685 inputs), scoreboards (81,000 operations), the player list (872,000 draw calls), chat and its suggestions (3,000 sessions) match |
-| Audio | 1 | None: the sound engine, sound events, music, situational music, ambience and subtitles match vanilla |
-| Block behaviours and ticking | 1 | None: block updates, random ticks, redstone, dispensers (6,000 cases), crafters (4,000), container spills (4,000), copper golems and the sculk family (435 scenarios) match |
+- The release launcher build completed successfully.
+- CLI version and help output were checked.
+- Account commands exposed offline player names only.
+- Other-launcher help included TLauncher.
+- Full tests were not run for that historical launcher build.
+- `cargo fmt --check` could not run because that build toolchain did not include `rustfmt`.
 
-### Known issues
+## Known limitations
 
-Skins served over https show the default skin unless already cached; pack icons show the unknown-pack texture in game; item tooltips lack attribute lines.
+- This repository does not distribute Minecraft assets, prepared resources, or account credentials.
+- Offline profiles cannot join servers that enforce Microsoft online authentication.
+- Updating to a new Horizon game release can replace game behavior with the behavior in that release; verify that important local fixes are included before switching a valuable world.
+- The offline/TLauncher patch may require manual updates when rebasing onto newer upstream launcher code.
+- Player state that was already lost before installing the save fix cannot be recovered if it was never written to disk.
 
-## Licence
+## Upstream project
 
-[MIT](LICENSE), for the project's original work; dependencies keep their own licences ([notices](THIRD_PARTY_NOTICES.md)). Minecraft is a trademark of Mojang Synergies AB; its code and assets belong to Mojang and Microsoft under the [Minecraft EULA](https://www.minecraft.net/en-us/eula).
+Horizon is primarily developed by [Ludovic Marie](https://lu4ovic.com) and the [Horizon contributors](https://github.com/horizon-rust/horizon/graphs/contributors). For upstream documentation, release notes, architecture, and contribution guidance, visit:
 
-## Author
+- [horizon-rust/horizon](https://github.com/horizon-rust/horizon)
+- [playhorizon.dev](https://playhorizon.dev)
+- [`docs/README.md`](docs/README.md)
+- [`ROADMAP.md`](ROADMAP.md)
 
-Made by [Ludovic Marie](https://lu4ovic.com) ([@ludovic111](https://github.com/ludovic111)).
+Please report issues specific to this fork in this repository rather than presenting them as upstream Horizon issues until they are reproduced on an unmodified upstream build.
+
+## License
+
+The project's original work is available under the [MIT License](LICENSE). Dependencies retain their own licenses; see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Minecraft is a trademark of Mojang Synergies AB. Minecraft code and assets belong to Mojang and Microsoft and are governed by the [Minecraft EULA](https://www.minecraft.net/en-us/eula).
