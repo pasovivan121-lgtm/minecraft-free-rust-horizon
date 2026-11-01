@@ -4,8 +4,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Minecraft-Java%2026.3-5D9C3F" alt="Minecraft Java 26.3">
-  <img src="https://img.shields.io/badge/launcher-offline--first-6A5ACD" alt="Offline-first launcher">
-  <img src="https://img.shields.io/badge/TLauncher-compatible-3B82F6" alt="TLauncher compatible">
+  <img src="https://img.shields.io/badge/Microsoft%20login-removed-6A5ACD" alt="Microsoft login removed">
+  <img src="https://img.shields.io/badge/TLauncher-support-added-3B82F6" alt="TLauncher support added">
   <img src="https://img.shields.io/badge/Rust-stable-B7410E?logo=rust&logoColor=white" alt="Rust">
   <img src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-2A2470" alt="Linux, macOS and Windows">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-3B2F7E" alt="MIT license"></a>
@@ -13,30 +13,45 @@
 
 # Minecraft Free Rust Horizon
 
-A customized build of [Horizon](https://github.com/horizon-rust/horizon), the open-source Rust rewrite of Minecraft: Java Edition. This fork is configured for an **offline player profile**, can prepare game resources from a local **TLauncher or Minecraft Launcher** installation, and includes a fix that preserves the single-player owner's inventory and position when saving a world.
+A customized build of [Horizon](https://github.com/horizon-rust/horizon), the open-source Rust rewrite of Minecraft: Java Edition.
+
+## Main change: Microsoft removed, TLauncher added
+
+This fork changes the Horizon launcher in two direct ways:
+
+1. **Microsoft account sign-in is removed.** The launcher no longer asks for a Microsoft login or checks Microsoft ownership. Play uses a local offline player name instead.
+2. **TLauncher support is added.** The launcher detects local TLauncher Minecraft files and profiles so Horizon can prepare and start the game from them.
+
+This is local-file integration, not TLauncher account integration: Horizon does not launch TLauncher, log in to TLauncher, or communicate with TLauncher's account service. The fork also includes a fix that preserves the single-player owner's inventory and position when saving a world.
 
 > [!IMPORTANT]
 > This is an unofficial community fork. It is not an official Minecraft product and is not approved by or associated with Mojang, Microsoft, TLauncher, or the upstream Horizon project.
 >
 > The repository contains no Minecraft code, assets, credentials, or prepared game data. Use your own legally obtained Minecraft files and follow the Minecraft EULA and the rules that apply in your country.
 
-## How this fork differs from upstream
+## Exactly what was changed
 
-### Offline-first launcher
+### Removed from the original Horizon launcher
 
-- Play uses a local offline player name and does not require Microsoft sign-in.
-- Microsoft sign-in and ownership prompts are removed from the customized launcher interface.
+- Microsoft account sign-in and account management.
+- Microsoft device-code and ownership prompts in the launcher interface.
+- The requirement to select a Microsoft account before pressing Play.
+- Automatic launcher self-replacement, preventing an upstream launcher update from restoring the removed Microsoft flow.
+
+### Added for TLauncher
+
+- Discovery of the standard Minecraft/TLauncher game directory. On Linux, this is normally `~/.minecraft`.
+- A manual folder picker under **Settings → Minecraft folder → Choose…** for custom TLauncher directories.
+- TLauncher profile discovery through `horizon-launcher instance others`.
+- Importing a discovered profile into a Horizon Java instance with `horizon-launcher instance copy-from`.
+- Preparation from matching Minecraft files already installed locally by TLauncher.
+
+### Offline play behavior
+
+- Play always uses a local offline player name.
 - New Horizon servers accept offline player profiles.
 - Existing Horizon servers are switched to offline mode when opened by this launcher.
 - Online-mode servers that require Microsoft authentication will not accept an offline profile.
-
-### TLauncher-compatible preparation
-
-- The launcher checks the standard Minecraft/TLauncher game directory. On Linux, this is normally `~/.minecraft`.
-- A different directory can be selected under **Settings → Minecraft folder → Choose…**.
-- TLauncher profiles appear in `horizon-launcher instance others` and can be copied into a Horizon Java instance with `horizon-launcher instance copy-from`.
-- Install and launch the matching Minecraft version in TLauncher first so its local files are available.
-- Horizon imports local files; it does not launch TLauncher or connect to TLauncher's account service.
 
 ### Single-player save fix
 
@@ -67,8 +82,8 @@ Automatic game-version installation can be changed under **Settings → Install 
 
 ## Using the customized launcher
 
-1. Install and launch the matching Minecraft version once in TLauncher or another supported launcher.
-2. Start the customized Horizon launcher.
+1. Install and launch the matching Minecraft version once in TLauncher so its files exist locally.
+2. Close TLauncher and start the customized Horizon launcher.
 3. Open **Settings** and confirm the Minecraft folder. Choose the correct folder manually if it was not detected.
 4. Add or select an offline player name.
 5. Create or select a Horizon instance, prepare its resources, and press **Play**.
